@@ -1,0 +1,8 @@
+## House keeping
+**/*.py[cod]
+.vscode
+.idea
+
+## Ignore development scripts and authentication files
+scripts
+spotify_authentication.json
