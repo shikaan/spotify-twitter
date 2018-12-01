@@ -11,6 +11,7 @@ SPOTIFY_BASE_URL = {
 
 AUTHENTICATION_FILENAME = 'spotify_authentication.json'
 
+
 class SpotifyClient:
     def __init__(self, client_id, client_secret, redirect_uri):
         self.client_id = client_id
@@ -33,30 +34,47 @@ class SpotifyClient:
         return base_url.substitute(client_id=self.client_id, redirect_uri=self.redirect_uri, scope=scopes)
 
     def __get_authentication(self, code):
-        authentication = requests.post(
-            SPOTIFY_BASE_URL['ACCOUNTS'] + '/api/token',
-            {
-                'code': code,
-                'grant_type': 'authorization_code',
-                'redirect_uri': self.redirect_uri,
-                'client_id': self.client_id,
-                'client_secret': self.client_secret
-            }
-        ).json()
+        try:
+            request = requests.post(
+                SPOTIFY_BASE_URL['ACCOUNTS'] + '/api/token',
+                {
+                    'code': code,
+                    'grant_type': 'authorization_code',
+                    'redirect_uri': self.redirect_uri,
+                    'client_id': self.client_id,
+                    'client_secret': self.client_secret
+                }
+            )
+        except requests.exceptions.HTTPError as exception:
+            print(exception.errno)
+            return
+        except Exception:
+            print(exception)
+            return
+
+        authentication = request.json()
 
         self.authentication = authentication
         self.__save_authentication(authentication)
 
     def __refresh_authentication(self):
-        request = requests.post(
-            'https://accounts.spotify.com/api/token',
-            {
-                'grant_type': 'refresh_token',
-                'refresh_token': self.authentication['refresh_token'],
-                'client_id': self.client_id,
-                'client_secret': self.client_secret
-            }
-        )
+        try:
+            request = requests.post(
+                'https://accounts.spotify.com/api/token',
+                {
+                    'grant_type': 'refresh_token',
+                    'refresh_token': self.authentication['refresh_token'],
+                    'client_id': self.client_id,
+                    'client_secret': self.client_secret
+                }
+            )
+            request.raise_for_status()
+        except requests.exceptions.HTTPError as exception:
+            print(exception.errno)
+            return
+        except Exception:
+            print(exception)
+            return
 
         self.authentication = request.json()
 
@@ -86,7 +104,5 @@ class SpotifyClient:
         url = SPOTIFY_BASE_URL['API'] + '/v1/me/player/currently-playing'
         headers = {'Authorization': 'Bearer ' +
                    self.authentication['access_token']}
-
-        print(headers)
 
         return requests.get(url, headers=headers).json()
