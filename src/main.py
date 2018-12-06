@@ -8,13 +8,10 @@ messenger = Messenger()
 spotifyClient = SpotifyClient(**configurationManager.getSpotifyConfiguration())
 twitterClient = twitter.Api(**configurationManager.getTwitterConfiguration())
 
-print('Login')
 spotifyClient.login()
-
-print('Currently playing')
 currently_playing_track = spotifyClient.get_currently_playing()
 
-if currently_playing_track['is_playing']:
+if currently_playing_track and currently_playing_track['is_playing']:
     album = currently_playing_track['item']['album']
     artists = currently_playing_track['item']['artists']
 

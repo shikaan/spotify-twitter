@@ -1,6 +1,5 @@
 from os import environ
 
-
 class ConfigurationManager:
     def __get_env(self, variable):
         try:

@@ -94,7 +94,8 @@ class SpotifyClient:
             print('Autologin failed due to: ' + str(exception))
 
             login_url = self.__build_login_url()
-            code = input('Open ' + login_url + ' and paste here the code here:')
+            code = input('Open ' + login_url +
+                         ' and paste here the code here:')
             self.__get_authentication(code)
 
     def get_currently_playing(self):
@@ -105,4 +106,7 @@ class SpotifyClient:
         headers = {'Authorization': 'Bearer ' +
                    self.authentication['access_token']}
 
-        return requests.get(url, headers=headers).json()
+        request = requests.get(url, headers=headers)
+
+        if request.status_code is 200:
+            return request.json()
