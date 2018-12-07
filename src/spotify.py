@@ -34,47 +34,33 @@ class SpotifyClient:
         return base_url.substitute(client_id=self.client_id, redirect_uri=self.redirect_uri, scope=scopes)
 
     def __get_authentication(self, code):
-        try:
-            request = requests.post(
-                SPOTIFY_BASE_URL['ACCOUNTS'] + '/api/token',
-                {
-                    'code': code,
-                    'grant_type': 'authorization_code',
-                    'redirect_uri': self.redirect_uri,
-                    'client_id': self.client_id,
-                    'client_secret': self.client_secret
-                }
-            )
-        except requests.exceptions.HTTPError as exception:
-            print(exception.errno)
-            return
-        except Exception:
-            print(exception)
-            return
-
+        request = requests.post(
+            SPOTIFY_BASE_URL['ACCOUNTS'] + '/api/token',
+            {
+                'code': code,
+                'grant_type': 'authorization_code',
+                'redirect_uri': self.redirect_uri,
+                'client_id': self.client_id,
+                'client_secret': self.client_secret
+            }
+        )
+    
         authentication = request.json()
 
         self.authentication = authentication
         self.__save_authentication(authentication)
 
     def __refresh_authentication(self):
-        try:
-            request = requests.post(
-                'https://accounts.spotify.com/api/token',
-                {
-                    'grant_type': 'refresh_token',
-                    'refresh_token': self.authentication['refresh_token'],
-                    'client_id': self.client_id,
-                    'client_secret': self.client_secret
-                }
-            )
-            request.raise_for_status()
-        except requests.exceptions.HTTPError as exception:
-            print(exception.errno)
-            return
-        except Exception:
-            print(exception)
-            return
+        request = requests.post(
+            'https://accounts.spotify.com/api/token',
+            {
+                'grant_type': 'refresh_token',
+                'refresh_token': self.authentication['refresh_token'],
+                'client_id': self.client_id,
+                'client_secret': self.client_secret
+            }
+        )
+        request.raise_for_status()
 
         self.authentication = request.json()
 
