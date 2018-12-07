@@ -69,8 +69,11 @@ class SpotifyClient:
         json.dump(authentication, f)
 
     def __load_authentication(self):
-        f = open(AUTHENTICATION_FILENAME, "r")
-        self.authentication = json.load(f)
+        try:
+            f = open(AUTHENTICATION_FILENAME, "r")
+            self.authentication = json.load(f)
+        except FileNotFoundError:
+            print('Unable to find authentication file')
 
     def login(self):
         try:
@@ -80,8 +83,7 @@ class SpotifyClient:
             print('Autologin failed due to: ' + str(exception))
 
             login_url = self.__build_login_url()
-            code = input('Open ' + login_url +
-                         ' and paste here the code here:')
+            code = input('Open ' + login_url + ' and paste here the code here:')
             self.__get_authentication(code)
 
     def get_currently_playing(self):

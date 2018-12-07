@@ -24,4 +24,32 @@ jobs:
       - save_cache:
           paths:
             - ./venv
-          key: v1-dependencies-{{ checksum "requirements.txt" }}        
+          key: v1-dependencies-{{ checksum "requirements.txt" }}
+
+      - restore_cache:
+          keys:
+          - spotify-authentication-
+
+      - run:
+          name: run job
+          command: |
+            . venv/bin/activate
+            echo $AUTH_CODE | python3 ./src/main.py
+      
+      - save_cache:
+          paths:
+            - ./spotify_authentication.json
+          key: spotify-authentication-{{ checksum "spotify_authentication.json" }}
+
+workflows:
+  version: 2
+  run:
+    triggers:
+      - schedule:
+          cron: "0 9-17 * * *"
+          filters:
+             branches:
+               only:
+                 - master
+    jobs:
+      - build
