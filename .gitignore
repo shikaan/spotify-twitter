@@ -2,6 +2,7 @@
 **/*.py[cod]
 .vscode
 .idea
+env/
 
 ## Ignore development scripts and authentication files
 scripts
